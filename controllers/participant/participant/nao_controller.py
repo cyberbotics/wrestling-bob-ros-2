@@ -24,6 +24,9 @@ class NaoDriver:
         # for more motor control functions, see the documentation: https://cyberbotics.com/doc/reference/motor
         # to see the list of available devices, see the NAO documentation: https://cyberbotics.com/doc/guide/nao
 
+        # we add a variable to wait for the robot to stabilise
+        self.wait = True
+
         rclpy.init(args=None)
         self.__node = rclpy.create_node('nao_driver')
 
@@ -31,6 +34,8 @@ class NaoDriver:
         # Mandatory function to go to the next simulation step
         rclpy.spin_once(self.__node, timeout_sec=0)
 
-        if self.__robot.getTime() == 1: # We wait a bit for the robot to stabilise
+        if self.__robot.getTime() >= 1 and self.wait: # We wait a bit for the robot to stabilise
             # to play a motion from the library, we use the play() function as follows:
             self.__library.play('Forwards50')
+
+            self.wait = False
