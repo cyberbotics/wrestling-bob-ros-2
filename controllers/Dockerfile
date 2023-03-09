@@ -1,18 +1,23 @@
-FROM cyberbotics/webots.cloud:R2023a-ubuntu20.04
+# We use the eprosima/vulcanexus:humble-simulation image because it is light
+# It has ROS2 and webots_ros2 installed
+FROM eprosima/vulcanexus:humble-simulation-2.1.1
 
-# Environment variables needed for Webots
-# https://cyberbotics.com/doc/guide/running-extern-robot-controllers#remote-extern-controllers
-ENV PYTHONPATH=${WEBOTS_HOME}/lib/controller/python
-ENV PYTHONIOENCODING=UTF-8
-ENV LD_LIBRARY_PATH=${WEBOTS_HOME}/lib/controller:${LD_LIBRARY_PATH}
-ARG WEBOTS_CONTROLLER_URL
-ENV WEBOTS_CONTROLLER_URL=${WEBOTS_CONTROLLER_URL}
+WORKDIR /usr/local/webots-project/controllers/participant
 
 # Copies all the files of the controllers folder into the docker container
 RUN mkdir -p /usr/local/webots-project/controllers
 COPY . /usr/local/webots-project/controllers
 
-# Entrypoint command to launch default Python controller script
-# (In shell form to allow variable expansion)
-WORKDIR /usr/local/webots-project/controllers/participant
-ENTRYPOINT python3 -u participant.py
+# The eprosima/vulcanexus:humble-simulation Docker image does not have colcon installed
+# We install it and build the participant package
+RUN apt-get update && \
+    apt-get install -y python3-colcon-common-extensions && \
+    rm -rf /var/lib/apt/lists/* && \
+    colcon build
+
+# Environment variable needed to connect to Webots instance
+ARG WEBOTS_CONTROLLER_URL
+ENV WEBOTS_CONTROLLER_URL=${WEBOTS_CONTROLLER_URL}
+
+# Source the ROS humble setup file and run the participant package
+CMD . /opt/ros/humble/setup.sh && . /usr/local/webots-project/controllers/participant/install/setup.sh && ros2 launch participant robot_launch.py

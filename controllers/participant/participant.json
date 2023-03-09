@@ -1,6 +1,6 @@
 {
-  "name": "Alice (Python)",
-  "description": "Minimalist Python controller example for the Robot Wrestling Tournament. Demonstrates how to play a simple motion file.",
+  "name": "Alice (ROS 2)",
+  "description": "Minimalist ROS 2 controller example for the Robot Wrestling Tournament.",
   "country": "demo",
-  "programming": "Python"
+  "programming": "ROS 2"
 }
