@@ -1,6 +1,6 @@
 {
-  "name": "Alice (ROS 2)",
-  "description": "Minimalist ROS 2 controller example for the Robot Wrestling Tournament.",
+  "name": "Bob (ROS 2)",
+  "description": "Demonstrates how to use the Motion_library class to play a motion file in ROS 2.",
   "country": "demo",
   "programming": "ROS 2"
 }

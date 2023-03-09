@@ -5,7 +5,7 @@ package_name = 'participant'
 setup(
     name=package_name,
     version='1.0.0',
-    packages=[package_name],
+    packages=[package_name, 'utils'],
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name + '/launch', ['launch/robot_launch.py']),
@@ -25,7 +25,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description='Minimalist ROS 2 controller example for the Humanoid Robot Wrestling Competition.',
+    description='Demonstrates how to use the Motion_library class to play a motion file in ROS 2.',
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={}

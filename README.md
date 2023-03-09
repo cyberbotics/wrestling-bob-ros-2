@@ -2,10 +2,11 @@
 
 [![webots.cloud - Competition](https://img.shields.io/badge/webots.cloud-Competition-007ACC)][1]
 
-## Alice ROS 2 controller
+## Bob ROS 2 controller
 
-Minimalist ROS 2 package controller example for the [Humanoid Robot Wrestling Competition](https://github.com/cyberbotics/wrestling).
-This basic package control motors using the Webots API provided by the [webots_ros2_driver](https://github.com/cyberbotics/webots_ros2/tree/master/webots_ros2_driver) package. An example `/IMU` topic has been implemented in [webots_controller.urdf](./controllers/participant/resource/webots_controller.urdf) following [this guide](https://github.com/cyberbotics/webots_ros2/wiki/References-Devices).
+This ROS 2 controller is a simple example of how to use the Motion_library class from the [motion.py](./controllers/utils/motion.py) module to load all motion files from the folder [motions](./controllers/motions) and play one of them.
+
+It beats [Alice](https://github.com/cyberbotics/wrestling-alice) by moving forwards and therefore having a higher coverage.
 
 The Docker image used in the competition is a lightweight humble image that does not have colcon installed so we pre-build the package using the [build_controller.sh](./controllers/build_controller.sh) script.
 
@@ -14,19 +15,29 @@ Here is the [nao_controller.py](./controllers/participant/participant/nao_contro
 ``` Python
 import rclpy
 
+# This is a workaround so that Webots' Python controller classes can be used
+# in this case, we need it to import MotionLibrary which needs the Motion class
+import os
+from ament_index_python.packages import get_package_prefix
+os.environ['WEBOTS_HOME'] = get_package_prefix('webots_ros2_driver')
+from utils.motion_library import MotionLibrary
 
 class NaoDriver:
     def init(self, webots_node, properties):
+        # we get the robot instance from the webots_node
         self.__robot = webots_node.robot
+        # to load all the motions from the motion folder, we use the Motion_library class:
+        self.__library = MotionLibrary()
 
         # we initialize the shoulder pitch motors using the Robot.getDevice() function:
         self.__RShoulderPitch = self.__robot.getDevice("RShoulderPitch")
         self.__LShoulderPitch = self.__robot.getDevice("LShoulderPitch")
-        self.__RShoulderRoll = self.__robot.getDevice("RShoulderRoll")
 
         # to control a motor, we use the setPosition() function:
-        self.__RShoulderPitch.setPosition(-1.3)
+        self.__RShoulderPitch.setPosition(1.3)
         self.__LShoulderPitch.setPosition(1.3)
+        # for more motor control functions, see the documentation: https://cyberbotics.com/doc/reference/motor
+        # to see the list of available devices, see the NAO documentation: https://cyberbotics.com/doc/guide/nao
 
         rclpy.init(args=None)
         self.__node = rclpy.create_node('nao_driver')
@@ -35,10 +46,10 @@ class NaoDriver:
         # Mandatory function to go to the next simulation step
         rclpy.spin_once(self.__node, timeout_sec=0)
 
-        if self.__robot.getTime() % 2 < 1:
-            self.__RShoulderRoll.setPosition(0)
-        else:
-            self.__RShoulderRoll.setPosition(-0.3)
+        if self.__robot.getTime() == 1: # We wait a bit for the robot to stabilise
+            # to play a motion from the library, we use the play() function as follows:
+            self.__library.play('Forwards50')
+
 ```
 
 And here is the [ROS 2 launch file](./controllers/participant/launch/robot_launch.py) using [webots_ros2_driver](https://github.com/cyberbotics/webots_ros2/tree/master/webots_ros2_driver):
@@ -98,6 +109,6 @@ ENV WEBOTS_CONTROLLER_URL=${WEBOTS_CONTROLLER_URL}
 CMD . /opt/ros/humble/setup.sh && . /usr/local/webots-project/controllers/participant/install/setup.sh && ros2 launch participant robot_launch.py
 ```
 
-[Bob](https://github.com/cyberbotics/wrestling-bob) is a more advanced robot controller able to win against Alice.
+[Charlie](https://github.com/cyberbotics/wrestling-charlie) is a more advanced robot controller able to win against Bob.
 
 [1]: https://webots.cloud/run?version=R2022b&url=https%3A%2F%2Fgithub.com%2Fcyberbotics%2Fwrestling%2Fblob%2Fmain%2Fworlds%2Fwrestling.wbt&type=competition "Leaderboard"
