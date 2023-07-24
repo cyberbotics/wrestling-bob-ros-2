@@ -1,6 +1,6 @@
-# We use the eprosima/vulcanexus:humble-simulation image because it is light
+# We use the eprosima/vulcanexus:iron-simulation image because it is light
 # It has ROS2 and webots_ros2 installed
-FROM eprosima/vulcanexus:humble-simulation-2.1.1
+FROM eprosima/vulcanexus:iron-simulation-3.0.0
 
 WORKDIR /usr/local/webots-project/controllers/participant
 
@@ -8,7 +8,7 @@ WORKDIR /usr/local/webots-project/controllers/participant
 RUN mkdir -p /usr/local/webots-project/controllers
 COPY . /usr/local/webots-project/controllers
 
-# The eprosima/vulcanexus:humble-simulation Docker image does not have colcon installed
+# The eprosima/vulcanexus:iron-simulation Docker image does not have colcon installed
 # We install it and build the participant package
 RUN apt-get update && \
     apt-get install -y python3-colcon-common-extensions && \
@@ -18,6 +18,7 @@ RUN apt-get update && \
 # Environment variable needed to connect to Webots instance
 ARG WEBOTS_CONTROLLER_URL
 ENV WEBOTS_CONTROLLER_URL=${WEBOTS_CONTROLLER_URL}
+ENV USER=root
 
-# Source the ROS humble setup file and run the participant package
-CMD . /opt/ros/humble/setup.sh && . /usr/local/webots-project/controllers/participant/install/setup.sh && ros2 launch participant robot_launch.py
+# Source the ROS iron setup file and run the participant package
+CMD . /opt/ros/iron/setup.sh && . /usr/local/webots-project/controllers/participant/install/setup.sh && ros2 launch participant robot_launch.py
